@@ -37,6 +37,8 @@ namespace Json2Mysql
             this.richTextBox2 = new System.Windows.Forms.RichTextBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label3
@@ -99,10 +101,11 @@ namespace Json2Mysql
             this.richTextBox1.Location = new System.Drawing.Point(67, 105);
             this.richTextBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(542, 395);
+            this.richTextBox1.Size = new System.Drawing.Size(512, 200);
             this.richTextBox1.TabIndex = 7;
             this.richTextBox1.Text = "";
             this.richTextBox1.WordWrap = false;
+            this.richTextBox1.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
             // 
             // checkBox1
             // 
@@ -114,11 +117,30 @@ namespace Json2Mysql
             this.checkBox1.Text = "INSERT IGNORE";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
+            // checkedListBox1
+            // 
+            this.checkedListBox1.FormattingEnabled = true;
+            this.checkedListBox1.Location = new System.Drawing.Point(67, 360);
+            this.checkedListBox1.Name = "checkedListBox1";
+            this.checkedListBox1.Size = new System.Drawing.Size(264, 119);
+            this.checkedListBox1.TabIndex = 15;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(63, 337);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(75, 20);
+            this.label4.TabIndex = 16;
+            this.label4.Text = "Columns:";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1343, 534);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.checkedListBox1);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -144,6 +166,8 @@ namespace Json2Mysql
         private System.Windows.Forms.RichTextBox richTextBox2;
         private System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckedListBox checkedListBox1;
+        private System.Windows.Forms.Label label4;
     }
 }
 

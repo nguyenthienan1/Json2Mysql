@@ -32,7 +32,7 @@ namespace Json2Mysql
                 MessageBox.Show("Please paste json text!");
                 return;
             }
-            string sql = JsonToMysql(richTextBox1.Text, textBox1.Text);
+            string sql = JsonToMysql(textBox1.Text);
             if (sql != null)
             {
                 richTextBox2.Clear();
@@ -40,17 +40,64 @@ namespace Json2Mysql
             }
         }
 
-        string JsonToMysql(string JsonText, string TableName)
+        List<string> columns = new List<string>();
+        JArray rows = null;
+
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
-            JArray rows = null;
+            checkedListBox1.Items.Clear();
             try
             {
-                rows = JsonConvert.DeserializeObject<JArray>(JsonText);
+                rows = JsonConvert.DeserializeObject<JArray>(richTextBox1.Text);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                MessageBox.Show("Can't deserialize json, please check again. " + e.Message);
-                return null;
+                MessageBox.Show("Can't deserialize json, please check again. " + ex.Message);
+                return;
+            }
+            if (rows == null || rows.Count == 0)
+            {
+                MessageBox.Show("Can't deserialize json, please check again.");
+                return;
+            }
+            List<KeyValuePair<string, JToken>> listFirstRow = ToList(((JObject)rows.First).GetEnumerator());
+
+            foreach (KeyValuePair<string, JToken> k in listFirstRow)
+            {
+                columns.Add(k.Key);
+            }
+            checkedListBox1.Items.AddRange(columns.ToArray());
+            for (int i = 0; i < columns.Count; i++)
+            {
+                checkedListBox1.SetItemChecked(i, true);
+            }
+        }
+
+        string JsonToMysql(string TableName)
+        {
+            JArray rowsData = new JArray();
+            Console.WriteLine(rowsData.Count);
+
+            List<string> columnData = new List<string>();
+            foreach (var i in checkedListBox1.CheckedItems)
+            {
+                columnData.Add(i.ToString());
+            }
+            Console.WriteLine(columnData);
+
+            foreach (JObject row in rows)
+            {
+                JObject keyValuePairs = new JObject();
+                List<KeyValuePair<string, JToken>> listJToken = ToList(row.GetEnumerator());
+                for (int i = 0; i < listJToken.Count; i++)
+                {
+                    KeyValuePair<string, JToken> kJToken = listJToken.ElementAt(i);
+                    if (columnData.Contains(kJToken.Key))
+                    {
+                        keyValuePairs.Add(kJToken.Key, kJToken.Value);
+                    }
+                }
+                rowsData.Add(keyValuePairs);
             }
 
             StringBuilder stringSql = new StringBuilder();
@@ -61,15 +108,11 @@ namespace Json2Mysql
             {
                 stringSql.Append("INSERT INTO " + TableName + " (");
             }
-            
 
-            JObject firstRow = (JObject)rows.First;
-            List<KeyValuePair<string, JToken>> listFirstRow = ToList(firstRow.GetEnumerator());
-            for (int i = 0; i < listFirstRow.Count; i++)
+            for (int i = 0; i < columnData.Count; i++)
             {
-                KeyValuePair<string, JToken> k = listFirstRow.ElementAt(i);
-                stringSql.Append("`" + k.Key + "`");
-                if (i < listFirstRow.Count - 1)
+                stringSql.Append("`" + columnData[i] + "`");
+                if (i < columnData.Count - 1)
                 {
                     stringSql.Append(", ");
                 }
@@ -80,7 +123,7 @@ namespace Json2Mysql
             }
             stringSql.Append(" VALUES ");
 
-            foreach (JObject row in rows)
+            foreach (JObject row in rowsData)
             {
                 stringSql.Append("\n(");
                 List<KeyValuePair<string, JToken>> listJToken = ToList(row.GetEnumerator());
@@ -120,5 +163,7 @@ namespace Json2Mysql
             }
             return list;
         }
+
+        
     }
 }
