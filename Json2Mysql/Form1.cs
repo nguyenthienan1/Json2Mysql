@@ -95,6 +95,7 @@ namespace Json2Mysql
             JArray rowsData = new JArray();
             foreach (JObject row in rows)
             {
+                List<string> listValue = new List<string>();
                 JObject keyValuePairs = new JObject();
                 List<KeyValuePair<string, JToken>> listJObject = ToList(row.GetEnumerator());
                 for (int i = 0; i < listJObject.Count; i++)
@@ -103,10 +104,14 @@ namespace Json2Mysql
                     if (columnsData.Contains(jObject.Key))
                     {
                         keyValuePairs.Add(jObject.Key, jObject.Value);
+                        listValue.Add(string.Empty + jObject.Value.ToString(Formatting.None));
                     }
                 }
                 rowsData.Add(keyValuePairs);
             }
+
+            //Update data grid view
+            updateDataGrid(columnsData, rowsData);
 
             StringBuilder stringSql = new StringBuilder();
 
@@ -120,6 +125,34 @@ namespace Json2Mysql
             stringSql.Append(insertDataSQL(TableName, columnsData, rowsData));
 
             return stringSql.ToString();
+        }
+
+        void updateDataGrid(List<string> columnsData, JArray rowsData)
+        {
+            dataGridView1.Columns.Clear();
+            dataGridView1.Rows.Clear();
+            foreach (string s in columnsData)
+            {
+                DataGridViewColumn column = new DataGridViewTextBoxColumn();
+                column.Name = s;
+                column.HeaderText = s;
+                dataGridView1.Columns.Add(column);
+            }
+
+            foreach (JObject row in rows)
+            {
+                List<string> listValue = new List<string>();
+                List<KeyValuePair<string, JToken>> listJObject = ToList(row.GetEnumerator());
+                for (int i = 0; i < listJObject.Count; i++)
+                {
+                    KeyValuePair<string, JToken> jObject = listJObject.ElementAt(i);
+                    if (columnsData.Contains(jObject.Key))
+                    {
+                        listValue.Add(string.Empty + jObject.Value.ToString(Formatting.None));
+                    }
+                }
+                dataGridView1.Rows.Add(listValue.ToArray());
+            }
         }
 
         string createTableSQL(string TableName, JArray rowsData)
@@ -147,6 +180,7 @@ namespace Json2Mysql
 
         string insertDataSQL(string TableName, List<string> columnDatas, JArray rowsData)
         {
+            label6.Text = "Rows count: " + rowsData.Count;
             StringBuilder stringSql = new StringBuilder();
 
             //Insert ignore
