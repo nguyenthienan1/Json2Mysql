@@ -2,13 +2,8 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Json2Mysql
@@ -146,7 +141,14 @@ namespace Json2Mysql
                     KeyValuePair<string, JToken> jObject = listJObject.ElementAt(i);
                     if (columnsData.Contains(jObject.Key))
                     {
-                        listValue.Add(string.Empty + jObject.Value.ToString(Formatting.None));
+                        if (jObject.Value.Type == JTokenType.Array)
+                        {
+                            listValue.Add(jObject.Value.ToString(Formatting.None));
+                        }
+                        else
+                        {
+                            listValue.Add(string.Empty + jObject.Value);
+                        }
                     }
                 }
                 dataGridView1.Rows.Add(listValue.ToArray());
@@ -204,7 +206,6 @@ namespace Json2Mysql
                 }
             }
             stringSql.Append(" VALUES ");
-
             foreach (JObject row in rowsData)
             {
                 stringSql.Append("\n(");
@@ -213,9 +214,13 @@ namespace Json2Mysql
                 for (int i = 0; i < listJObject.Count; i++)
                 {
                     KeyValuePair<string, JToken> jObject = listJObject.ElementAt(i);
-                    if (jObject.Value.Type == JTokenType.String || jObject.Value.Type == JTokenType.Array)
+                    if (jObject.Value.Type == JTokenType.String)
                     {
-                        stringSql.Append("'" + jObject.Value.ToString(Formatting.None) + "'");
+                        stringSql.Append($"'{jObject.Value}'");
+                    }
+                    else if (jObject.Value.Type == JTokenType.Array)
+                    {
+                        stringSql.Append($"'{jObject.Value.ToString(Formatting.None)}'");
                     }
                     else
                     {
@@ -246,7 +251,7 @@ namespace Json2Mysql
                 case JTokenType.Float:
                     return "DOUBLE";
                 default:
-                    return "VARCHAR(1024)";
+                    return "TEXT";
             }
         }
 
