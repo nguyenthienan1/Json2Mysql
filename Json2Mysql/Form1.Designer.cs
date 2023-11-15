@@ -45,43 +45,48 @@ namespace Json2Mysql
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(750, 77);
+            this.label3.Location = new System.Drawing.Point(491, 47);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(59, 20);
+            this.label3.Size = new System.Drawing.Size(40, 13);
             this.label3.TabIndex = 13;
             this.label3.Text = "Result:";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(67, 123);
+            this.label2.Location = new System.Drawing.Point(36, 77);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(123, 20);
+            this.label2.Size = new System.Drawing.Size(83, 13);
             this.label2.TabIndex = 12;
             this.label2.Text = "Paste json here:";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(63, 38);
+            this.label1.Location = new System.Drawing.Point(33, 22);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(96, 20);
+            this.label1.Size = new System.Drawing.Size(66, 13);
             this.label1.TabIndex = 11;
             this.label1.Text = "Table name:";
             // 
             // textBox1
             // 
             this.textBox1.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox1.Location = new System.Drawing.Point(163, 35);
+            this.textBox1.Location = new System.Drawing.Point(100, 20);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(168, 31);
+            this.textBox1.Size = new System.Drawing.Size(113, 23);
             this.textBox1.TabIndex = 10;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(625, 238);
+            this.button1.Location = new System.Drawing.Point(408, 152);
+            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(102, 31);
+            this.button1.Size = new System.Drawing.Size(68, 20);
             this.button1.TabIndex = 9;
             this.button1.Text = "Convert";
             this.button1.UseVisualStyleBackColor = true;
@@ -89,12 +94,14 @@ namespace Json2Mysql
             // 
             // richTextBox2
             // 
+            this.richTextBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBox2.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBox2.Location = new System.Drawing.Point(750, 105);
-            this.richTextBox2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.richTextBox2.Location = new System.Drawing.Point(491, 65);
             this.richTextBox2.Name = "richTextBox2";
             this.richTextBox2.ReadOnly = true;
-            this.richTextBox2.Size = new System.Drawing.Size(529, 395);
+            this.richTextBox2.Size = new System.Drawing.Size(322, 311);
             this.richTextBox2.TabIndex = 8;
             this.richTextBox2.Text = "";
             this.richTextBox2.WordWrap = false;
@@ -102,10 +109,9 @@ namespace Json2Mysql
             // richTextBox1
             // 
             this.richTextBox1.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBox1.Location = new System.Drawing.Point(67, 157);
-            this.richTextBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.richTextBox1.Location = new System.Drawing.Point(36, 99);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(512, 200);
+            this.richTextBox1.Size = new System.Drawing.Size(343, 131);
             this.richTextBox1.TabIndex = 7;
             this.richTextBox1.Text = "";
             this.richTextBox1.WordWrap = false;
@@ -114,46 +120,53 @@ namespace Json2Mysql
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(199, 77);
+            this.checkBox1.Location = new System.Drawing.Point(124, 47);
+            this.checkBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(162, 24);
+            this.checkBox1.Size = new System.Drawing.Size(111, 17);
             this.checkBox1.TabIndex = 14;
             this.checkBox1.Text = "INSERT IGNORE";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // checkedListBox1
             // 
+            this.checkedListBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.checkedListBox1.CheckOnClick = true;
             this.checkedListBox1.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.checkedListBox1.FormattingEnabled = true;
-            this.checkedListBox1.Location = new System.Drawing.Point(67, 403);
+            this.checkedListBox1.Location = new System.Drawing.Point(36, 259);
+            this.checkedListBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.checkedListBox1.Name = "checkedListBox1";
-            this.checkedListBox1.Size = new System.Drawing.Size(264, 119);
+            this.checkedListBox1.Size = new System.Drawing.Size(238, 94);
             this.checkedListBox1.TabIndex = 15;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(67, 380);
+            this.label4.Location = new System.Drawing.Point(36, 244);
+            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(75, 20);
+            this.label4.Size = new System.Drawing.Size(50, 13);
             this.label4.TabIndex = 16;
             this.label4.Text = "Columns:";
             // 
             // checkBox2
             // 
             this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(71, 77);
+            this.checkBox2.Location = new System.Drawing.Point(38, 47);
+            this.checkBox2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(122, 24);
+            this.checkBox2.Size = new System.Drawing.Size(83, 17);
             this.checkBox2.TabIndex = 17;
             this.checkBox2.Text = "Create table";
             this.checkBox2.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1343, 534);
+            this.ClientSize = new System.Drawing.Size(849, 400);
             this.Controls.Add(this.checkBox2);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.checkedListBox1);
@@ -165,6 +178,7 @@ namespace Json2Mysql
             this.Controls.Add(this.button1);
             this.Controls.Add(this.richTextBox2);
             this.Controls.Add(this.richTextBox1);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);

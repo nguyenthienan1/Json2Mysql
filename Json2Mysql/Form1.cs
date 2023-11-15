@@ -43,6 +43,11 @@ namespace Json2Mysql
         List<string> columns = new List<string>();
         JArray rows = null;
 
+        /// <summary>
+        /// Deserialize Json Object and create columns after change text in richtextbox1
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
             columns.Clear();
