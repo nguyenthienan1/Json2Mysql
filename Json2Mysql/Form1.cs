@@ -95,7 +95,6 @@ namespace Json2Mysql
             JArray rowsData = new JArray();
             foreach (JObject row in rows)
             {
-                List<string> listValue = new List<string>();
                 JObject keyValuePairs = new JObject();
                 List<KeyValuePair<string, JToken>> listJObject = ToList(row.GetEnumerator());
                 for (int i = 0; i < listJObject.Count; i++)
@@ -104,7 +103,6 @@ namespace Json2Mysql
                     if (columnsData.Contains(jObject.Key))
                     {
                         keyValuePairs.Add(jObject.Key, jObject.Value);
-                        listValue.Add(string.Empty + jObject.Value.ToString(Formatting.None));
                     }
                 }
                 rowsData.Add(keyValuePairs);
