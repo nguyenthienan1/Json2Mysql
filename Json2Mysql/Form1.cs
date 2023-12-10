@@ -92,9 +92,8 @@ namespace Json2Mysql
             {
                 JObject keyValuePairs = new JObject();
                 List<KeyValuePair<string, JToken>> listJObject = ToList(row.GetEnumerator());
-                for (int i = 0; i < listJObject.Count; i++)
+                foreach (KeyValuePair<string, JToken> jObject in listJObject)
                 {
-                    KeyValuePair<string, JToken> jObject = listJObject.ElementAt(i);
                     if (columnsData.Contains(jObject.Key))
                     {
                         keyValuePairs.Add(jObject.Key, jObject.Value);
@@ -104,23 +103,23 @@ namespace Json2Mysql
             }
 
             //Update data grid view
-            updateDataGrid(columnsData, rowsData);
+            UpdateDataGrid(columnsData, rowsData);
 
             StringBuilder stringSql = new StringBuilder();
 
             //Create table
             if (checkBox2.Checked)
             {
-                stringSql.Append(createTableSQL(TableName, rowsData));
+                stringSql.Append(CreateTableSQL(TableName, rowsData));
             }
 
             //Insert data
-            stringSql.Append(insertDataSQL(TableName, columnsData, rowsData));
+            stringSql.Append(InsertDataSQL(TableName, columnsData, rowsData));
 
             return stringSql.ToString();
         }
 
-        void updateDataGrid(List<string> columnsData, JArray rowsData)
+        void UpdateDataGrid(List<string> columnsData, JArray rowsData)
         {
             dataGridView1.Columns.Clear();
             dataGridView1.Rows.Clear();
@@ -147,7 +146,7 @@ namespace Json2Mysql
                         }
                         else
                         {
-                            listValue.Add(string.Empty + jObject.Value);
+                            listValue.Add(jObject.Value.ToString());
                         }
                     }
                 }
@@ -155,30 +154,23 @@ namespace Json2Mysql
             }
         }
 
-        string createTableSQL(string TableName, JArray rowsData)
+        string CreateTableSQL(string TableName, JArray rowsData)
         {
             StringBuilder stringSql = new StringBuilder();
             stringSql.Append($"CREATE TABLE `{TableName}` (\n");
 
             List<KeyValuePair<string, JToken>> listFieldFirstRow = ToList(((JObject)rowsData.First).GetEnumerator());
-            for (int i = 0; i < listFieldFirstRow.Count; i++)
+            foreach (KeyValuePair<string, JToken> keyValue in listFieldFirstRow)
             {
-                string key = listFieldFirstRow[i].Key;
-                JToken value = listFieldFirstRow[i].Value;
-                stringSql.Append($"\t`{key}` {toTypeSQL(value.Type)}");
-                if (i < listFieldFirstRow.Count - 1)
-                {
-                    stringSql.Append(",\n");
-                }
-                else
-                {
-                    stringSql.Append("\n);\n\n");
-                }
+                stringSql.Append($"\t`{keyValue.Key}` {ToMySqlType(keyValue.Value.Type)}");
+                stringSql.Append(",\n");
             }
+            stringSql.Remove(stringSql.Length - 2, 2); //remove last ",\n"
+            stringSql.Append("\n);\n\n");
             return stringSql.ToString();
         }
 
-        string insertDataSQL(string TableName, List<string> columnDatas, JArray rowsData)
+        string InsertDataSQL(string TableName, List<string> columnsData, JArray rowsData)
         {
             label6.Text = "Rows count: " + rowsData.Count;
             StringBuilder stringSql = new StringBuilder();
@@ -193,56 +185,45 @@ namespace Json2Mysql
                 stringSql.Append($"INSERT INTO `{TableName}` (");
             }
 
-            for (int i = 0; i < columnDatas.Count; i++)
+            foreach (string column in columnsData)
             {
-                stringSql.Append($"`{columnDatas[i]}`");
-                if (i < columnDatas.Count - 1)
-                {
-                    stringSql.Append(", ");
-                }
-                else
-                {
-                    stringSql.Append(")");
-                }
+                stringSql.Append($"`{column}`");
+                stringSql.Append(", ");
             }
+            stringSql.Remove(stringSql.Length - 2, 2); //remove last ", "
+            stringSql.Append(")");
             stringSql.Append(" VALUES ");
             foreach (JObject row in rowsData)
             {
                 stringSql.Append("\n(");
                 List<KeyValuePair<string, JToken>> listJObject = ToList(row.GetEnumerator());
 
-                for (int i = 0; i < listJObject.Count; i++)
+                foreach (KeyValuePair<string, JToken> keyValue in listJObject)
                 {
-                    KeyValuePair<string, JToken> jObject = listJObject.ElementAt(i);
-                    if (jObject.Value.Type == JTokenType.String)
+                    if (keyValue.Value.Type == JTokenType.String)
                     {
-                        stringSql.Append($"'{jObject.Value}'");
+                        stringSql.Append($"'{keyValue.Value}'");
                     }
-                    else if (jObject.Value.Type == JTokenType.Array)
+                    else if (keyValue.Value.Type == JTokenType.Array)
                     {
-                        stringSql.Append($"'{jObject.Value.ToString(Formatting.None)}'");
+                        stringSql.Append($"'{keyValue.Value.ToString(Formatting.None)}'");
                     }
                     else
                     {
-                        stringSql.Append(jObject.Value);
+                        stringSql.Append(keyValue.Value);
                     }
 
-                    if (i < listJObject.Count - 1)
-                    {
-                        stringSql.Append(", ");
-                    }
-                    else
-                    {
-                        stringSql.Append("),");
-                    }
+                    stringSql.Append(", ");
                 }
+                stringSql.Remove(stringSql.Length - 2, 2); //remove last ", "
+                stringSql.Append("),");
             }
 
             stringSql = stringSql.Remove(stringSql.Length - 1, 1).Append(";");
             return stringSql.ToString();
         }
 
-        string toTypeSQL(JTokenType type)
+        string ToMySqlType(JTokenType type)
         {
             switch (type)
             {
