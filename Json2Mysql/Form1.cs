@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Json2Mysql
@@ -15,58 +16,54 @@ namespace Json2Mysql
             InitializeComponent();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
-            if (textBox1.TextLength == 0)
+            if (textBox1.TextLength == 0 || richTextBox1.TextLength == 0 || dataSource == null || dataSource.Count == 0)
             {
-                MessageBox.Show("Please input table name!");
+                MessageBox.Show("Please input table name and paste JSON text.");
                 return;
             }
-            if (richTextBox1.TextLength == 0)
-            {
-                MessageBox.Show("Please paste json text!");
-                return;
-            }
-            if (rowsSource == null || rowsSource.Count == 0)
-            {
-                return;
-            }
-            string sql = JsonToMysql(textBox1.Text);
-            if (sql != null)
-            {
-                richTextBox2.Clear();
-                richTextBox2.Text = sql;
-            }
+            string sql = await Task.Run(() => JsonToMysql(textBox1.Text));
+
+            richTextBox2.Clear();
+            richTextBox2.Text = sql;
+            label6.Text = "Rows count: " + rows.Count;
+            UpdateDataGridView();
         }
 
-        JArray rowsSource = null;
+        private JArray dataSource;
+        private List<string> columns;
+        private List<List<JToken>> rows;
 
-        /// <summary>
-        /// Deserialize Json Object and create columns after change text in richtextbox1
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
-            if (rowsSource != null)
-                rowsSource.Clear();
-            checkedListBox1.Items.Clear();
+            InitializeDataSource();
+            InitializeCheckedListBox();
+        }
+
+        private void InitializeDataSource()
+        {
+            if (dataSource != null)
+                dataSource.Clear();
             try
             {
-                rowsSource = JArray.Parse(richTextBox1.Text);
+                dataSource = JArray.Parse(richTextBox1.Text);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Can't deserialize json, please check again. " + ex.Message);
                 return;
             }
-            if (rowsSource == null || rowsSource.Count == 0)
+        }
+
+        private void InitializeCheckedListBox()
+        {
+            if (dataSource == null || dataSource.Count == 0)
             {
-                MessageBox.Show("Can't deserialize json, please check again.");
                 return;
             }
-
-            List<string> columns = GetKeysInFirstObject(rowsSource);
+            checkedListBox1.Items.Clear();
+            List<string> columns = GetKeysInFirstObject(dataSource);
             checkedListBox1.Items.AddRange(columns.ToArray());
             for (int i = 0; i < columns.Count; i++)
             {
@@ -77,7 +74,7 @@ namespace Json2Mysql
         string JsonToMysql(string TableName)
         {
             //columns data follow checked list box column
-            List<string> columns = new List<string>();
+            columns = new List<string>();
             List<string> columnsRemove = new List<string>();
             for (int i = 0; i < checkedListBox1.Items.Count; i++)
             {
@@ -88,28 +85,23 @@ namespace Json2Mysql
                     columnsRemove.Add(checkedListBox1.Items[i].ToString());
             }
 
-            //rows data follow checked list box column
-            JArray rows = rowsSource.DeepClone() as JArray;
-            RemoveKeysFromJArray(rows, columnsRemove);
-
-            //Update data grid view
-            UpdateDataGrid(columns, rows);
+            //data follow checked list box column
+            JArray data = dataSource.DeepClone() as JArray;
+            RemoveKeysFromJArray(data, columnsRemove);
+            rows = GetAllValuesListFromJArray(data);
 
             StringBuilder stringSql = new StringBuilder();
-
             //Create table
             if (checkBox2.Checked)
             {
-                stringSql.Append(CreateTableSQL(TableName, rows));
+                stringSql.Append(CreateTableSQL(TableName, data));
             }
-
             //Insert data
-            stringSql.Append(InsertDataSQL(TableName, columns, rows));
-
+            stringSql.Append(InsertDataSQL(TableName));
             return stringSql.ToString();
         }
 
-        void UpdateDataGrid(List<string> columns, JArray rows)
+        void UpdateDataGridView()
         {
             dataGridView1.Columns.Clear();
             dataGridView1.Rows.Clear();
@@ -118,46 +110,41 @@ namespace Json2Mysql
                 dataGridView1.Columns.Add(s, s);
             }
 
-            foreach (JObject row in rows)
+            foreach (List<JToken> row in rows)
             {
                 List<string> listValue = new List<string>();
-                List<KeyValuePair<string, JToken>> keyValuePairs = GetAllKeyValuePairs(row);
-                foreach (KeyValuePair<string, JToken> keyValuePair in keyValuePairs)
+                foreach (JToken jToken in row)
                 {
-                    if (keyValuePair.Value.Type == JTokenType.Array)
+                    if (jToken.Type == JTokenType.Array)
                     {
-                        listValue.Add(keyValuePair.Value.ToString(Formatting.None));
+                        listValue.Add(jToken.ToString(Formatting.None));
                     }
                     else
                     {
-                        listValue.Add(keyValuePair.Value.ToString());
+                        listValue.Add(jToken.ToString());
                     }
                 }
                 dataGridView1.Rows.Add(listValue.ToArray());
             }
         }
 
-        string CreateTableSQL(string TableName, JArray rows)
+        string CreateTableSQL(string TableName, JArray data)
         {
-            StringBuilder stringSql = new StringBuilder();
-            stringSql.Append($"CREATE TABLE `{TableName}` (\n");
-
-            List<KeyValuePair<string, JToken>> keyValuePairs = GetAllKeyValuePairs(rows.First as JObject);
+            List<string> strings = new List<string>();
+            List<KeyValuePair<string, JToken>> keyValuePairs = GetAllKeyValuePairs(data.First as JObject);
             foreach (KeyValuePair<string, JToken> keyValuePair in keyValuePairs)
             {
-                stringSql.Append($"\t`{keyValuePair.Key}` {ToMySqlType(keyValuePair.Value.Type)}");
-                stringSql.Append(",\n");
+                strings.Add($"\t`{keyValuePair.Key}` {ToMySqlType(keyValuePair.Value.Type)}");
             }
-            stringSql.Remove(stringSql.Length - 2, 2); //remove last ",\n"
-            stringSql.Append("\n);\n\n");
-            return stringSql.ToString();
+            string stringSql = $"CREATE TABLE `{TableName}` (\n"
+                + string.Join(",\n", strings)
+                + "\n);\n\n";
+            return stringSql;
         }
 
-        string InsertDataSQL(string TableName, List<string> columns, JArray rows)
+        string InsertDataSQL(string TableName)
         {
-            label6.Text = "Rows count: " + rows.Count;
             StringBuilder stringSql = new StringBuilder();
-
             //Insert ignore
             if (checkBox1.Checked)
             {
@@ -168,41 +155,38 @@ namespace Json2Mysql
                 stringSql.Append($"INSERT INTO `{TableName}` (");
             }
 
+            List<string> listStrColumns = new List<string>();
             foreach (string column in columns)
             {
-                stringSql.Append($"`{column}`");
-                stringSql.Append(", ");
+                listStrColumns.Add($"`{column}`");
             }
-            stringSql.Remove(stringSql.Length - 2, 2); //remove last ", "
+            stringSql.Append(string.Join(", ", listStrColumns));
+
             stringSql.Append(")");
             stringSql.Append(" VALUES ");
-            foreach (JObject row in rows)
-            {
-                stringSql.Append("\n(");
-                List<KeyValuePair<string, JToken>> keyValuePairs = GetAllKeyValuePairs(row);
 
-                foreach (KeyValuePair<string, JToken> keyValuePair in keyValuePairs)
+            List<string> listStrRows = new List<string>();
+            foreach (List<JToken> row in rows)
+            {
+                List<string> listStrRow = new List<string>();
+                foreach (JToken jToken in row)
                 {
-                    if (keyValuePair.Value.Type == JTokenType.String)
+                    if (jToken.Type == JTokenType.String)
                     {
-                        stringSql.Append($"'{keyValuePair.Value}'");
+                        listStrRow.Add($"'{jToken}'");
                     }
-                    else if (keyValuePair.Value.Type == JTokenType.Array)
+                    else if (jToken.Type == JTokenType.Array)
                     {
-                        stringSql.Append($"'{keyValuePair.Value.ToString(Formatting.None)}'");
+                        listStrRow.Add($"'{jToken.ToString(Formatting.None)}'");
                     }
                     else
                     {
-                        stringSql.Append(keyValuePair.Value);
+                        listStrRow.Add(jToken.ToString());
                     }
-
-                    stringSql.Append(", ");
                 }
-                stringSql.Remove(stringSql.Length - 2, 2); //remove last ", "
-                stringSql.Append("),");
+                listStrRows.Add("\n(" + string.Join(", ", listStrRow) + ")");
             }
-
-            stringSql.Remove(stringSql.Length - 1, 1); //remove ","
+            stringSql.Append(string.Join(",", listStrRows));
             stringSql.Append(";");
             return stringSql.ToString();
         }
@@ -218,6 +202,25 @@ namespace Json2Mysql
                 default:
                     return "TEXT";
             }
+        }
+
+        static List<List<JToken>> GetAllValuesListFromJArray(JArray jsonArray)
+        {
+            List<List<JToken>> allValuesList = new List<List<JToken>>();
+
+            foreach (JObject obj in jsonArray.Children<JObject>())
+            {
+                List<JToken> values = new List<JToken>();
+
+                foreach (JProperty property in obj.Properties())
+                {
+                    values.Add(property.Value);
+                }
+
+                allValuesList.Add(values);
+            }
+
+            return allValuesList;
         }
 
         static List<string> GetKeysInFirstObject(JArray jsonArray)
