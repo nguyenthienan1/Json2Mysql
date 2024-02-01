@@ -16,14 +16,14 @@ namespace Json2Mysql
             InitializeComponent();
         }
 
-        private async void button1_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
             if (textBox1.TextLength == 0 || richTextBox1.TextLength == 0 || dataSource == null || dataSource.Count == 0)
             {
                 MessageBox.Show("Please input table name and paste JSON text.");
                 return;
             }
-            string sql = await Task.Run(() => JsonToMysql(textBox1.Text));
+            string sql = JsonToMysql(textBox1.Text);
 
             richTextBox2.Clear();
             richTextBox2.Text = sql;
@@ -115,14 +115,7 @@ namespace Json2Mysql
                 List<string> listValue = new List<string>();
                 foreach (JToken jToken in row)
                 {
-                    if (jToken.Type == JTokenType.Array)
-                    {
-                        listValue.Add(jToken.ToString(Formatting.None));
-                    }
-                    else
-                    {
-                        listValue.Add(jToken.ToString());
-                    }
+                    listValue.Add(jToken.ToString(Formatting.None));
                 }
                 dataGridView1.Rows.Add(listValue.ToArray());
             }
@@ -161,9 +154,7 @@ namespace Json2Mysql
                 listStrColumns.Add($"`{column}`");
             }
             stringSql.Append(string.Join(", ", listStrColumns));
-
-            stringSql.Append(")");
-            stringSql.Append(" VALUES ");
+            stringSql.Append(")").Append(" VALUES ");
 
             List<string> listStrRows = new List<string>();
             foreach (List<JToken> row in rows)
@@ -175,13 +166,13 @@ namespace Json2Mysql
                     {
                         listStrRow.Add($"'{jToken}'");
                     }
-                    else if (jToken.Type == JTokenType.Array)
+                    else if (jToken.Type == JTokenType.Array || jToken.Type == JTokenType.Object)
                     {
                         listStrRow.Add($"'{jToken.ToString(Formatting.None)}'");
                     }
                     else
                     {
-                        listStrRow.Add(jToken.ToString());
+                        listStrRow.Add(jToken.ToString(Formatting.None));
                     }
                 }
                 listStrRows.Add("\n(" + string.Join(", ", listStrRow) + ")");
